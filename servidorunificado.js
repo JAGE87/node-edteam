@@ -14,9 +14,7 @@ const enrutador = {
     let usuarioId;
     switch (data.metodo) {
       case 'post':
-        var extraer_id = data.payload[10]+data.payload[11];
-        console.log('extraer_id = ', extraer_id);
-        const identificador = extraer_id;
+        const identificador = _identificador;
         _data.crear(
           { directorio: data.ruta, archivo: identificador, data: data.payload },
           error => {
@@ -177,7 +175,6 @@ const servidorUnificado = (req, res) => {
   req.on('end', () => {
     buffer += decoder.end();
     console.log('buffer = ', buffer);
-    extraer_id = buffer[10]+buffer[11];
 
     const data = {
       ruta: rutaLimpia,
