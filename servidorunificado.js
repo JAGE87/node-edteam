@@ -4,17 +4,19 @@ const _data = require('./lib/data');
 const _identificador = require('./lib/identificador');
 
 const enrutador = {
-  ejemplo: (data, callback) => {
+  ejemplos: (data, callback) => {
     callback(200, JSON.stringify({ mensaje: 'esto es un ejemplo' }));
   },
   noEncontrado: (data, callback) => {
     callback(404, JSON.stringify({ mensaje: 'recurso no encontrado' }));
   },
-  usuarios: (data, callback) => {
+  cotizaciones: (data, callback) => {
     let usuarioId;
     switch (data.metodo) {
       case 'post':
-        const identificador = _identificador();
+        var extraer_id = data.payload[10]+data.payload[11];
+        console.log('extraer_id = ', extraer_id);
+        const identificador = extraer_id;
         _data.crear(
           { directorio: data.ruta, archivo: identificador, data: data.payload },
           error => {
@@ -30,15 +32,15 @@ const enrutador = {
         if (data.params && data.params.id) {
           usuarioId = data.params.id;
         } else {
-          _data.listar({ directorio: data.ruta }, (error, usuarios) => {
+          _data.listar({ directorio: data.ruta }, (error, cotizaciones) => {
             if (error) {
               callback(500, JSON.stringify({ error }));
-            } else if (usuarios) {
-              callback(200, JSON.stringify(usuarios));
+            } else if (cotizaciones) {
+              callback(200, JSON.stringify(cotizaciones));
             } else {
               callback(
                 500,
-                JSON.stringify({ error: 'Hubo un error al leer los usuarios' })
+                JSON.stringify({ error: 'Hubo un error al leer las cotizaciones' })
               );
             }
           });
@@ -168,12 +170,14 @@ const servidorUnificado = (req, res) => {
   // Obtenemos un payload, si hay
   const decoder = new StringDecoder('utf-8');
   let buffer = '';
+  let extraer_id = '';
   req.on('data', data => {
     buffer += decoder.write(data);
   });
   req.on('end', () => {
     buffer += decoder.end();
     console.log('buffer = ', buffer);
+    extraer_id = buffer[10]+buffer[11];
 
     const data = {
       ruta: rutaLimpia,
